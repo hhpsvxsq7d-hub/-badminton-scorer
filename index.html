@@ -1,0 +1,90 @@
+<script>
+let state = {
+    lScore: 0,
+    rScore: 0,
+    serverSide: 'left',
+    mode: 'doubles',
+    history: []
+};
+
+function isGameOver() {
+    const { lScore, rScore } = state;
+    if (lScore >= 21 || rScore >= 21) {
+        if (Math.abs(lScore - rScore) >= 2) return true;
+    }
+    return false;
+}
+
+function update() {
+    document.getElementById('val-left').innerText = state.lScore;
+    document.getElementById('val-right').innerText = state.rScore;
+    document.getElementById('modeBtn').innerText =
+        state.mode === 'doubles' ? '雙打模式' : '單打模式';
+
+    // 清除所有發球標記
+    ['left-L','left-R','right-L','right-R'].forEach(id => {
+        const el = document.getElementById(id);
+        el.className =
+            "flex-1 border-2 border-zinc-800 rounded-xl flex items-center justify-center text-zinc-600 font-bold transition-all";
+        el.innerText = id.includes('L') ? '左區' : '右區';
+    });
+
+    // GAME 顯示
+    if (isGameOver()) {
+        const winner = state.lScore > state.rScore ? 'left' : 'right';
+        document.getElementById(`val-${winner}`).innerText = "GAME";
+        return;
+    }
+
+    // 發球區判斷
+    const score = state.serverSide === 'left' ? state.lScore : state.rScore;
+    const court = (score % 2 === 0) ? 'R' : 'L';
+    const id = `${state.serverSide}-${court}`;
+    const el = document.getElementById(id);
+
+    el.className += " server-highlight text-yellow-400";
+    el.innerText = "⚡ 發球";
+}
+
+function addPoint(side) {
+    if (isGameOver()) return;
+    state.history.push(JSON.stringify(state));
+    if (side === 'left') state.lScore++;
+    else state.rScore++;
+    state.serverSide = side;
+    update();
+}
+
+function undo() {
+    if (!state.history.length) return;
+    Object.assign(state, JSON.parse(state.history.pop()));
+    update();
+}
+
+function reset() {
+    if (!confirm("確定重設？")) return;
+    state = { lScore: 0, rScore: 0, serverSide: 'left', mode: state.mode, history: [] };
+    update();
+}
+
+function toggleMode() {
+    state.mode = state.mode === 'doubles' ? 'singles' : 'doubles';
+    update();
+}
+
+function switchSides() {
+    state.history.push(JSON.stringify(state));
+    [state.lScore, state.rScore] = [state.rScore, state.lScore];
+    const l = document.getElementById('name-left');
+    const r = document.getElementById('name-right');
+    [l.value, r.value] = [r.value, l.value];
+    state.serverSide = state.serverSide === 'left' ? 'right' : 'left';
+    update();
+}
+
+document.body.addEventListener('dblclick', () => {
+    document.documentElement.requestFullscreen?.();
+});
+
+update();
+</script>
