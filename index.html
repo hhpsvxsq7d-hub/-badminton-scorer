@@ -1,177 +1,201 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Badminton Scorer</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Badminton Scorer</title>
 
-  <!-- Tailwind CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap" rel="stylesheet">
-
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #000;
-      color: #fff;
-      touch-action: manipulation;
-      overflow: hidden;
-    }
-    .score {
-      font-size: 28vw;
-      font-weight: 900;
-      line-height: 0.8;
-    }
-    .server {
-      background: rgba(234, 179, 8, 0.15);
-      border: 6px solid #eab308;
-      box-shadow: 0 0 40px rgba(234, 179, 8, 0.25);
-      color: #facc15;
-    }
-  </style>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #000;
+  color: #fff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.top {
+  height: 56px;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  border-bottom: 1px solid #333;
+}
+button {
+  background: #222;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+button.danger { color: #f87171; }
+.main {
+  flex: 1;
+  display: flex;
+}
+.side {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-right: 1px solid #333;
+}
+.side:last-child { border-right: none; }
+.name {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #444;
+  color: #aaa;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 12px;
+}
+.score {
+  font-size: 30vw;
+  font-weight: 900;
+  line-height: 0.8;
+}
+.courts {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  padding: 0 20px;
+  margin-top: 16px;
+}
+.court {
+  flex: 1;
+  border: 2px solid #333;
+  border-radius: 12px;
+  padding: 14px 0;
+  text-align: center;
+  color: #666;
+  font-weight: 700;
+}
+.server {
+  border-color: #facc15;
+  color: #facc15;
+  box-shadow: 0 0 25px rgba(250,204,21,0.4);
+}
+</style>
 </head>
 
-<body class="h-screen flex flex-col">
+<body>
 
-  <!-- Top Bar -->
-  <div class="h-14 flex justify-between items-center px-5 bg-zinc-900 border-b border-zinc-800">
-    <div class="flex gap-2">
-      <button id="modeBtn" onclick="toggleMode()" class="px-3 py-1 text-sm font-bold bg-zinc-800 border border-zinc-700 rounded">
-        雙打模式
-      </button>
-      <button onclick="switchSides()" class="px-3 py-1 text-sm font-bold bg-zinc-800 border border-zinc-700 rounded">
-        🔄 換邊
-      </button>
-    </div>
-    <div class="flex gap-4 text-sm">
-      <button onclick="undo()" class="text-zinc-400">↩ 復原</button>
-      <button onclick="resetGame()" class="text-red-500 font-bold">重設</button>
+<div class="top">
+  <div>
+    <button onclick="toggleMode()" id="modeBtn">雙打模式</button>
+    <button onclick="switchSides()">🔄 換邊</button>
+  </div>
+  <div>
+    <button onclick="undo()">↩ 復原</button>
+    <button class="danger" onclick="resetGame()">重設</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="side" onclick="addPoint('left')">
+    <input class="name" id="nameLeft" value="TEAM A" onclick="event.stopPropagation()">
+    <div class="score" id="scoreLeft">0</div>
+    <div class="courts">
+      <div class="court" id="left-L">左區</div>
+      <div class="court" id="left-R">右區</div>
     </div>
   </div>
 
-  <!-- Score Area -->
-  <div class="flex-1 flex">
-
-    <!-- Left -->
-    <div onclick="addPoint('left')" class="flex-1 flex flex-col items-center justify-center border-r border-zinc-800 active:bg-zinc-900">
-      <input id="nameLeft" value="TEAM A"
-        onclick="event.stopPropagation()"
-        class="bg-transparent text-zinc-400 text-xl font-bold tracking-widest uppercase text-center mb-4 focus:outline-none border-b border-transparent focus:border-zinc-700"/>
-      <div id="scoreLeft" class="score">0</div>
-
-      <div class="mt-6 flex w-full px-8 gap-4">
-        <div id="left-L" class="flex-1 border-2 border-zinc-800 rounded-xl py-4 text-center text-zinc-600 font-bold">左區</div>
-        <div id="left-R" class="flex-1 border-2 border-zinc-800 rounded-xl py-4 text-center text-zinc-600 font-bold">右區</div>
-      </div>
+  <div class="side" onclick="addPoint('right')">
+    <input class="name" id="nameRight" value="TEAM B" onclick="event.stopPropagation()">
+    <div class="score" id="scoreRight">0</div>
+    <div class="courts">
+      <div class="court" id="right-R">右區</div>
+      <div class="court" id="right-L">左區</div>
     </div>
-
-    <!-- Right -->
-    <div onclick="addPoint('right')" class="flex-1 flex flex-col items-center justify-center active:bg-zinc-900">
-      <input id="nameRight" value="TEAM B"
-        onclick="event.stopPropagation()"
-        class="bg-transparent text-zinc-400 text-xl font-bold tracking-widest uppercase text-center mb-4 focus:outline-none border-b border-transparent focus:border-zinc-700"/>
-      <div id="scoreRight" class="score">0</div>
-
-      <div class="mt-6 flex w-full px-8 gap-4">
-        <div id="right-R" class="flex-1 border-2 border-zinc-800 rounded-xl py-4 text-center text-zinc-600 font-bold">右區</div>
-        <div id="right-L" class="flex-1 border-2 border-zinc-800 rounded-xl py-4 text-center text-zinc-600 font-bold">左區</div>
-      </div>
-    </div>
-
   </div>
+</div>
 
-  <!-- Script -->
-  <script>
-    let state = {
-      left: 0,
-      right: 0,
-      server: 'left',
-      mode: 'doubles',
-      history: []
-    };
+<script>
+let state = {
+  left: 0,
+  right: 0,
+  server: 'left',
+  mode: 'doubles',
+  history: []
+};
 
-    function save() {
-      state.history.push(JSON.stringify(state));
-    }
+function save() {
+  state.history.push(JSON.stringify(state));
+}
 
-    function isGame() {
-      const a = state.left;
-      const b = state.right;
-      return (a >= 21 || b >= 21) && Math.abs(a - b) >= 2;
-    }
+function isGame() {
+  return (state.left >= 21 || state.right >= 21) &&
+         Math.abs(state.left - state.right) >= 2;
+}
 
-    function update() {
-      document.getElementById('scoreLeft').innerText = state.left;
-      document.getElementById('scoreRight').innerText = state.right;
-      document.getElementById('modeBtn').innerText =
-        state.mode === 'doubles' ? '雙打模式' : '單打模式';
+function update() {
+  scoreLeft.textContent = state.left;
+  scoreRight.textContent = state.right;
+  modeBtn.textContent = state.mode === 'doubles' ? '雙打模式' : '單打模式';
 
-      ['left-L','left-R','right-L','right-R'].forEach(id => {
-        const el = document.getElementById(id);
-        el.className = "flex-1 border-2 border-zinc-800 rounded-xl py-4 text-center text-zinc-600 font-bold";
-        el.innerText = id.includes('L') ? '左區' : '右區';
-      });
+  ['left-L','left-R','right-L','right-R'].forEach(id => {
+    const el = document.getElementById(id);
+    el.className = 'court';
+    el.textContent = id.includes('L') ? '左區' : '右區';
+  });
 
-      if (isGame()) {
-        document.getElementById(
-          state.left > state.right ? 'scoreLeft' : 'scoreRight'
-        ).innerText = 'GAME';
-        return;
-      }
+  if (isGame()) {
+    (state.left > state.right ? scoreLeft : scoreRight).textContent = 'GAME';
+    return;
+  }
 
-      const score = state.server === 'left' ? state.left : state.right;
-      const side = score % 2 === 0 ? 'R' : 'L';
-      const el = document.getElementById(`${state.server}-${side}`);
-      el.className += " server";
-      el.innerText = "⚡ 發球";
-    }
+  const score = state.server === 'left' ? state.left : state.right;
+  const side = score % 2 === 0 ? 'R' : 'L';
+  document.getElementById(`${state.server}-${side}`).classList.add('server');
+}
 
-    function addPoint(side) {
-      if (isGame()) return;
-      save();
-      state[side]++;
-      state.server = side;
-      update();
-    }
+function addPoint(side) {
+  if (isGame()) return;
+  save();
+  state[side]++;
+  state.server = side;
+  update();
+}
 
-    function undo() {
-      if (!state.history.length) return;
-      state = JSON.parse(state.history.pop());
-      update();
-    }
+function undo() {
+  if (!state.history.length) return;
+  state = JSON.parse(state.history.pop());
+  update();
+}
 
-    function resetGame() {
-      if (!confirm('確定重設？')) return;
-      state.left = 0;
-      state.right = 0;
-      state.server = 'left';
-      state.history = [];
-      update();
-    }
+function resetGame() {
+  if (!confirm('確定重設？')) return;
+  state.left = 0;
+  state.right = 0;
+  state.server = 'left';
+  state.history = [];
+  update();
+}
 
-    function toggleMode() {
-      state.mode = state.mode === 'doubles' ? 'singles' : 'doubles';
-      update();
-    }
+function toggleMode() {
+  state.mode = state.mode === 'doubles' ? 'singles' : 'doubles';
+  update();
+}
 
-    function switchSides() {
-      save();
-      [state.left, state.right] = [state.right, state.left];
-      const l = document.getElementById('nameLeft');
-      const r = document.getElementById('nameRight');
-      [l.value, r.value] = [r.value, l.value];
-      state.server = state.server === 'left' ? 'right' : 'left';
-      update();
-    }
+function switchSides() {
+  save();
+  [state.left, state.right] = [state.right, state.left];
+  [nameLeft.value, nameRight.value] = [nameRight.value, nameLeft.value];
+  state.server = state.server === 'left' ? 'right' : 'left';
+  update();
+}
 
-    document.body.ondblclick = () => {
-      document.documentElement.requestFullscreen?.();
-    };
-
-    update();
-  </script>
+update();
+</script>
 
 </body>
 </html>
